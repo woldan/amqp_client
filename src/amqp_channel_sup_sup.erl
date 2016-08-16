@@ -19,7 +19,7 @@
 
 -include("amqp_client.hrl").
 
--behaviour(supervisor2).
+-behaviour(rabbit_supervisor).
 
 -export([start_link/3, start_channel_sup/4]).
 -export([init/1]).
@@ -29,13 +29,13 @@
 %%---------------------------------------------------------------------------
 
 start_link(Type, Connection, ConnName) ->
-    supervisor2:start_link(?MODULE, [Type, Connection, ConnName]).
+    rabbit_supervisor:start_link(?MODULE, [Type, Connection, ConnName]).
 
 start_channel_sup(Sup, InfraArgs, ChannelNumber, Consumer) ->
-    supervisor2:start_child(Sup, [InfraArgs, ChannelNumber, Consumer]).
+    rabbit_supervisor:start_child(Sup, [InfraArgs, ChannelNumber, Consumer]).
 
 %%---------------------------------------------------------------------------
-%% supervisor2 callbacks
+%% rabbit_supervisor callbacks
 %%---------------------------------------------------------------------------
 
 init([Type, Connection, ConnName]) ->

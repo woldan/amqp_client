@@ -19,7 +19,7 @@
 
 -include("amqp_client_internal.hrl").
 
--behaviour(supervisor2).
+-behaviour(rabbit_supervisor).
 
 -export([start_link/6]).
 -export([init/1]).
@@ -31,9 +31,9 @@
 start_link(Type, Connection, ConnName, InfraArgs, ChNumber,
            Consumer = {_, _}) ->
     Identity = {ConnName, ChNumber},
-    {ok, Sup} = supervisor2:start_link(?MODULE, [Consumer, Identity]),
-    [{gen_consumer, ConsumerPid, _, _}] = supervisor2:which_children(Sup),
-    {ok, ChPid} = supervisor2:start_child(
+    {ok, Sup} = rabbit_supervisor:start_link(?MODULE, [Consumer, Identity]),
+    [{gen_consumer, ConsumerPid, _, _}] = rabbit_supervisor:which_children(Sup),
+    {ok, ChPid} = rabbit_supervisor:start_child(
                     Sup, {channel,
                           {amqp_channel, start_link,
                            [Type, Connection, ChNumber, ConsumerPid, Identity]},
@@ -55,7 +55,7 @@ start_writer(_Sup, direct, [ConnPid, Node, User, VHost, Collector],
                   VHost, ?CLIENT_CAPABILITIES, Collector]),
     RabbitCh;
 start_writer(Sup, network, [Sock, FrameMax], ConnName, ChNumber, ChPid) ->
-    {ok, Writer} = supervisor2:start_child(
+    {ok, Writer} = rabbit_supervisor:start_child(
                      Sup,
                      {writer, {rabbit_writer, start_link,
                                [Sock, ChNumber, FrameMax, ?PROTOCOL, ChPid,
@@ -67,7 +67,7 @@ init_command_assembler(direct)  -> {ok, none};
 init_command_assembler(network) -> rabbit_command_assembler:init(?PROTOCOL).
 
 %%---------------------------------------------------------------------------
-%% supervisor2 callbacks
+%% rabbit_supervisor callbacks
 %%---------------------------------------------------------------------------
 
 init([{ConsumerModule, ConsumerArgs}, Identity]) ->

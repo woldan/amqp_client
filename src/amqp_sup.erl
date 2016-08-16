@@ -19,7 +19,7 @@
 
 -include("amqp_client.hrl").
 
--behaviour(supervisor2).
+-behaviour(rabbit_supervisor).
 
 -export([start_link/0, start_connection_sup/1]).
 -export([init/1]).
@@ -29,13 +29,13 @@
 %%---------------------------------------------------------------------------
 
 start_link() ->
-    supervisor2:start_link({local, amqp_sup}, ?MODULE, []).
+    rabbit_supervisor:start_link({local, amqp_sup}, ?MODULE, []).
 
 start_connection_sup(AmqpParams) ->
-    supervisor2:start_child(amqp_sup, [AmqpParams]).
+    rabbit_supervisor:start_child(amqp_sup, [AmqpParams]).
 
 %%---------------------------------------------------------------------------
-%% supervisor2 callbacks
+%% rabbit_supervisor callbacks
 %%---------------------------------------------------------------------------
 
 init([]) ->
